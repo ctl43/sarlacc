@@ -72,8 +72,8 @@ umiGroup <- function(UMI1, max.lev1 = 3, UMI2 = NULL, max.lev2 = max.lev1, max.e
         flat.out <- flat.out[!remove]
         out.groups <- out.groups[!remove]
     }
-    # group.order <- order(collected.member)
-    # collected.group[group.order]
-    names(collected.member) <- NULL
-    split(collected.member, f=collected.group)
+    group.order <- order(collected.member)
+    collected.group[group.order]
+    # names(collected.member) <- NULL
+    # split(collected.member, f=collected.group)
 }
