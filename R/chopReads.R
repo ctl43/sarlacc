@@ -53,6 +53,6 @@ chopReads <- function(aligned, score1, score2, essential1 = TRUE, essential2 = T
     } else {
         aligned$adaptor2 <- NULL
     }
-    
+
     return(aligned)
 }
