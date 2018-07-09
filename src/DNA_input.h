@@ -1,3 +1,6 @@
+#ifndef DNA_INPUT_H
+#define DNA_INPUT_H
+
 #include "sarlacc.h"
 #include <memory>
 
@@ -5,13 +8,11 @@ class DNA_input {
 public:    
     DNA_input();
     virtual ~DNA_input();
-    const char * cstring() const;
-
+    
     virtual size_t size() const=0;
-    virtual void choose(size_t)=0; 
-    virtual size_t length() const=0;
-
-    virtual char decode(char) const=0;
+    virtual std::pair<const char*, size_t> get(size_t)=0; 
+    virtual size_t get_len(size_t) const=0;
+    virtual void clear()=0;
 protected:
     const char * active;
 };
@@ -22,12 +23,12 @@ public:
     ~string_input();
 
     size_t size() const;
-    void choose(size_t);
-    size_t length() const;
-    char decode(char) const;
+    std::pair<const char*, size_t> get(size_t); 
+    size_t get_len(size_t) const;
+    void clear();
 private:
     Rcpp::StringVector all_values;
-    Rcpp::String active_string;
+    std::deque<Rcpp::String> holder;
 };
 
 class DNAStringSet_input : public DNA_input {
@@ -36,12 +37,14 @@ public:
     ~DNAStringSet_input();
 
     size_t size() const;
-    void choose(size_t);
-    size_t length() const;
-    char decode(char) const;
+    std::pair<const char*, size_t> get(size_t); 
+    size_t get_len(size_t) const;
+    void clear();
 private:
     XStringSet_holder all_values;
-    Chars_holder active_string;
+    std::deque<Chars_holder> holder;
+    std::deque<std::vector<char> > buffer;
+    size_t used;
 };
 
 std::unique_ptr<DNA_input> process_DNA_input (Rcpp::RObject);
@@ -50,3 +53,4 @@ size_t check_alignment_width(DNA_input * aln);
 
 size_t get_max_width(DNA_input * aln);
 
+#endif

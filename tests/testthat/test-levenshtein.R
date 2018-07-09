@@ -56,12 +56,12 @@ test_that("fast levenshtein finder works as expected for default data", {
 
     closest <- .Call(sarlacc:::cxx_umi_group, randoms, 5L)
     for (x in seq_along(closest)) {
-        expect_identical(unname(which(ref[x,] <= 5L)), sort(closest[[x]]+1L))
+        expect_identical(unname(which(ref[x,] <= 5L)), sort(closest[[x]]))
     }
 
     closest <- .Call(sarlacc:::cxx_umi_group, randoms, 2L)
     for (x in seq_along(closest)) {
-        expect_identical(unname(which(ref[x,] <= 2L)), sort(closest[[x]]+1L))
+        expect_identical(unname(which(ref[x,] <= 2L)), sort(closest[[x]]))
     }
 
     # Another simulation of many random sequences.
@@ -70,12 +70,12 @@ test_that("fast levenshtein finder works as expected for default data", {
 
     closest <- .Call(sarlacc:::cxx_umi_group, randoms, 5L)
     for (x in seq_along(closest)) {
-        expect_identical(unname(which(ref[x,] <= 5L)), sort(closest[[x]]+1L))
+        expect_identical(unname(which(ref[x,] <= 5L)), sort(closest[[x]]))
     }
 
     closest <- .Call(sarlacc:::cxx_umi_group, randoms, 2L)
     for (x in seq_along(closest)) {
-        expect_identical(unname(which(ref[x,] <= 2L)), sort(closest[[x]]+1L))
+        expect_identical(unname(which(ref[x,] <= 2L)), sort(closest[[x]]))
     }
 
     # Simulations involving lots of the same sequence.
@@ -85,12 +85,12 @@ test_that("fast levenshtein finder works as expected for default data", {
 
     closest <- .Call(sarlacc:::cxx_umi_group, randoms, 5L)
     for (x in seq_along(closest)) {
-        expect_identical(unname(which(ref[x,] <= 5L)), sort(closest[[x]]+1L))
+        expect_identical(unname(which(ref[x,] <= 5L)), sort(closest[[x]]))
     }
 
     closest <- .Call(sarlacc:::cxx_umi_group, randoms, 2L)
     for (x in seq_along(closest)) {
-        expect_identical(unname(which(ref[x,] <= 2L)), sort(closest[[x]]+1L))
+        expect_identical(unname(which(ref[x,] <= 2L)), sort(closest[[x]]))
     }
 })
 
@@ -102,48 +102,12 @@ test_that("fast levenshtein finder works as expected for masked data", {
         
         set <- DNAStringSet(c(ref, masked))
         out <- .Call(sarlacc:::cxx_umi_group, set, 1L)
-        expect_identical(sort(out[[1]]+1L), c(1L, 2L))
-        expect_identical(sort(out[[2]]+1L), c(1L, 2L))
+        expect_identical(sort(out[[1]]), c(1L, 2L))
+        expect_identical(sort(out[[2]]), c(1L, 2L))
 
         # N's are missing, so a distance of 1 even when strings are the same
         out <- .Call(sarlacc:::cxx_umi_group, set, 0L)
-        expect_identical(sort(out[[1]]+1L), c(1L))
-        expect_identical(sort(out[[2]]+1L), integer(0))
-    }
-})
-
-##############################################################
-
-test_that("graph clusterer works as expected for a given list", {
-    set.seed(1000)          
-
-    for (nuniverse in c(20, 50, 100)) {
-        for (nlinks in c(50, 100, 200)) {
-            # Simulate a list.
-            from <- sample(nuniverse, nlinks, replace=TRUE)
-            to <- sample(nuniverse, nlinks, replace=TRUE)
-            from <- factor(from, levels=seq_len(nuniverse))
-            links <- split(to - 1L, from, drop=FALSE) # expects zero-indexed.
-
-            # Create descending clusters. 
-            clusters <- .Call(sarlacc:::cxx_descending_graph_cluster, links)
-            expect_true(all(tabulate(clusters) >0L))
-           
-            # Checking all values with some tests.
-            all.sizes <- lengths(links)
-
-            pruned.links <- links
-            for (i in seq_along(links)) {
-                current <- links[[i]] + 1L
-                keep <- all.sizes[current] <= all.sizes[i]
-                pruned.links[[i]] <- current[keep]
-            }
-
-            G <- igraph::make_graph(rbind(rep(seq_along(pruned.links), lengths(pruned.links)), unlist(pruned.links)), n=nuniverse, directed=FALSE)
-            for (chosen in split(seq_along(clusters), clusters)) {
-                subG <- igraph::induced_subgraph(G, chosen)
-                expect_identical(igraph::count_components(subG), 1)
-            }
-        }
+        expect_identical(sort(out[[1]]), c(1L))
+        expect_identical(sort(out[[2]]), integer(0))
     }
 })
