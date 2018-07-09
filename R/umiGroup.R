@@ -58,20 +58,22 @@ umiGroup <- function(UMI1, max.lev1 = 3, UMI2 = NULL, max.lev2 = max.lev1, max.e
     collected.member <- c()
     
     for(i in seq_along(out)){
+        if(length(out.groups)==0){
+            break
+        }
         member.count <- rle(sort(out.groups))
         member.num <- member.count$lengths
         member <- member.count$values
-        max.group <- member[which.max(member.num)]
+        max.group <- member[max(which(member.num==max(member.num)))]
         target <- out.groups==max.group
-        if(length(target)==0){
-            break
-        }
         collected.member <- c(collected.member, flat.out[target])
         collected.group <- c(collected.group, out.groups[target])
-        remove <- flat.out%in%flat.out[target]
+        remove <- flat.out%in%flat.out[target]|out.groups%in%flat.out[target]
         flat.out <- flat.out[!remove]
         out.groups <- out.groups[!remove]
     }
-    group.order <- order(collected.member)
-    collected.group[group.order]
+    # group.order <- order(collected.member)
+    # collected.group[group.order]
+    names(collected.member) <- NULL
+    split(collected.member, f=collected.group)
 }
