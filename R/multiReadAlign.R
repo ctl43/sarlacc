@@ -15,7 +15,7 @@ multiReadAlign <- function(reads, groups, max.error=NA, keep.masked=FALSE, ..., 
 {
     Nreads <- length(reads)
     if (missing(groups)) {
-        by.groups <- list(seq_len(Nreads))
+        by.group <- list(seq_len(Nreads))
     } else if (is.list(groups)) {
         by.group <- groups
     } else {
@@ -75,6 +75,17 @@ multiReadAlign <- function(reads, groups, max.error=NA, keep.masked=FALSE, ..., 
     to.use <- if (do.mask) masked[indices] else reads[indices]
     cur.align <- muscle(DNAStringSet(to.use), ..., quiet=TRUE)
     cur.align <- unmasked(cur.align)
+    
+    #Create empty alignment for UMI sequence with dash only
+    align.char <- as.character(cur.align)
+    if(length(align.char)!=length(to.use)){
+      collected.align <- to.use
+      empty.align <- paste(rep("-",nchar(cur.align)), collapse = "")
+      empty.align <- replicate(length(to.use)-length(align.char), empty.align)
+      collected.align[collected.align!=""] <- align.char
+      collected.align[collected.align==""] <- empty.align
+      cur.align <- DNAMultipleAlignment(collected.align)
+    }
     
     if (do.mask && !keep.masked) {
         cur.align <- .Call(cxx_unmask_bases, cur.align, reads[indices])

@@ -49,7 +49,7 @@ minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NU
         origins <- lapply(subclustered, FUN = function(idx) {
             unlist(origins[idx], use.names = FALSE)
         })
-    
+        
         names(origins) <- names(reads)[vapply(origins, FUN = "[", i = 1, FUN.VALUE = 0L)] 
         
         # Identifying the groups with changes and only performing MSA on those groups.

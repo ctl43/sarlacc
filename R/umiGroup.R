@@ -53,7 +53,7 @@ umiGroup <- function(UMI1, max.lev1 = 3, UMI2 = NULL, max.lev2 = max.lev1, max.e
 
 .central_max <- function(out){
     out.groups <- rep(seq_along(out), lengths(out))
-    flat.out <- unlist(out)
+    flat.out <- unlist(out) + 1L
     collected.group <- c()
     collected.member <- c()
     
