@@ -1,6 +1,3 @@
-#ifndef SARLACC_H
-#define SARLACC_H
-
 #include "Rcpp.h"
 
 #include <stdexcept>
@@ -19,7 +16,6 @@ extern "C" {
 SEXP count_gaps_by_base(SEXP, SEXP, SEXP);
 SEXP count_gaps_by_align(SEXP, SEXP, SEXP);
 
-SEXP quick_msa(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 SEXP mask_bad_bases(SEXP, SEXP, SEXP);
 SEXP unmask_bases(SEXP, SEXP);
 
@@ -29,7 +25,7 @@ SEXP create_consensus_quality(SEXP, SEXP, SEXP);
 SEXP create_consensus_quality_loop(SEXP, SEXP, SEXP);
 
 SEXP umi_group(SEXP, SEXP);
-SEXP cluster_umis(SEXP);
+SEXP descending_graph_cluster(SEXP);
 SEXP compute_lev_masked(SEXP);
 
 SEXP find_homopolymers(SEXP);
@@ -39,5 +35,3 @@ SEXP find_errors(SEXP, SEXP);
 SEXP get_aligned_sequence(SEXP, SEXP, SEXP, SEXP, SEXP);
 
 }
-
-#endif

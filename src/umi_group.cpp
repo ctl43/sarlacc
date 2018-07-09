@@ -230,12 +230,15 @@ struct sorted_trie {
         current.reserve(50); // probably enough.
 
         for (auto o : ordering) {
-            auto curpair=seqs->get(o);
-            const char * cur_str=curpair.first;
-            const size_t cur_len=curpair.second;
+            seqs->choose(o);
+            const char * cur_str=seqs->cstring();
+            const size_t cur_len=seqs->length();
 
             current.resize(cur_len);
-            std::copy(cur_str, cur_str+cur_len, current.begin());
+            for (size_t i=0; i<cur_len; ++i) {
+                current[i]=seqs->decode(cur_str[i]);
+            }
+
             toplevel.insert(o, current);
         }
         return;
@@ -252,13 +255,13 @@ struct sorted_trie {
         size_t last_o=0;
 
         for (auto o : ordering) {
-            auto curpair=seqs->get(o);
-            const char * cur_str=curpair.first;
-            const size_t cur_len=curpair.second;
+            seqs->choose(o);
+            const char * cur_str=seqs->cstring();
+            const size_t cur_len=seqs->length();
 
             // Figuring out the common prefix.
             size_t idx=0;
-            while (idx < current.size() && idx < cur_len && cur_str[idx]==current[idx]) {
+            while (idx < current.size() && idx < cur_len && seqs->decode(cur_str[idx])==current[idx]) {
                 ++idx;
             }
             const size_t common=idx;
@@ -273,7 +276,7 @@ struct sorted_trie {
             // Replacing the remaining elements in 'current'.
             current.resize(cur_len);
             while (idx < cur_len) {
-                current[idx]=cur_str[idx];
+                current[idx]=seqs->decode(cur_str[idx]);
                 ++idx;
             }
 
@@ -286,8 +289,7 @@ struct sorted_trie {
             // Searching through the trie.
             toplevel.find_within(collected, current, common, limit, counter);
 
-            // Storing the results (getting back to 1-indexing).
-            for (auto& c : collected) { ++c; }
+            // Storing the results.
             output[o]=Rcpp::IntegerVector(collected.begin(), collected.end());
             collected.clear();
 

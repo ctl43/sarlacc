@@ -22,10 +22,9 @@ SEXP count_gaps_by_base(SEXP adapt_align, SEXP posstart, SEXP posend) {
 
     Rcpp::IntegerVector beforeS(N), beforeE(N);
     for (size_t i=0; i<N; ++i) {
-        alignments->clear(); // Clearing out the stored objects.
-        auto curstr=alignments->get(i);
-        const char* current=curstr.first;
-        const size_t len=curstr.second;
+        alignments->choose(i);
+        const size_t len=alignments->length();
+        const char* current=alignments->cstring();
         
         int counter=0;
         int& bumpStart=beforeS[i];
@@ -35,7 +34,7 @@ SEXP count_gaps_by_base(SEXP adapt_align, SEXP posstart, SEXP posend) {
             if (counter > len) {
                 throw std::runtime_error("end position exceeds the number of bases in the alignment string");
             }
-            if (*current != '-') {
+            if (alignments->decode(*current)!='-') {
                 ++counter;
             } else {
                 if (counter < End) {
@@ -66,10 +65,9 @@ SEXP count_gaps_by_align(SEXP read_align, SEXP posstart, SEXP posend) {
 
     Rcpp::IntegerVector beforeS(N), beforeE(N);
     for (size_t i=0; i<N; ++i) {
-        alignments->clear();
-        auto curstr=alignments->get(i);
-        const char* current=curstr.first;
-        const size_t len=curstr.second;
+        alignments->choose(i);
+        const char* current=alignments->cstring();
+        const size_t len=alignments->length();
 
         int Start=Starts[i]-1; // zero indexed start, open end.
         int End=Ends[i];
@@ -88,7 +86,7 @@ SEXP count_gaps_by_align(SEXP read_align, SEXP posstart, SEXP posend) {
         int& bumpEnd=beforeE[i];
 
         while (counter < End) {
-            if (*current == '-') {
+            if (alignments->decode(*current)=='-') {
                 if (counter < End) {
                     ++bumpEnd;
                     if (counter < Start) { // NOT '<=', to avoid counting gaps at the 'Start' alignment position.

@@ -10,7 +10,6 @@ static const R_CallMethodDef all_call_entries[] = {
     REGISTER(count_gaps_by_base, 3),
     REGISTER(count_gaps_by_align, 3),
 
-    REGISTER(quick_msa, 7),
     REGISTER(mask_bad_bases, 3),    
     REGISTER(unmask_bases, 2),
 
@@ -20,7 +19,7 @@ static const R_CallMethodDef all_call_entries[] = {
     REGISTER(create_consensus_quality_loop, 3), 
 
     REGISTER(umi_group, 2),
-    REGISTER(cluster_umis, 1),
+    REGISTER(descending_graph_cluster, 1),
     REGISTER(compute_lev_masked, 1),
 
     REGISTER(find_homopolymers, 1),
