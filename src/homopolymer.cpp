@@ -100,9 +100,6 @@ SEXP find_homopolymers (SEXP sequences) {
         while (!SQ.is_finished()) {
             SQ.advance();
             const size_t homolen=SQ.get_length();
-            if (homolen==1) { 
-                continue;
-            }
 
             collected_index.push_back(i);
             collected_pos.push_back(SQ.get_start()+1);
