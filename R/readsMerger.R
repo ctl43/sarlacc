@@ -30,10 +30,11 @@ minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NU
     if(!is.null(UMI2)){
         names(UMI2.copy) <- seq_along(reads)
     }
-  
+    
     iterations <- 0L
-    system(paste("echo iterations",iterations,">> progress.txt", sep=" "))
+    system("rm progress.txt")
     while (iterations <= max.iter) {
+        system(paste("echo iterations",iterations,">> progress.txt", sep=" "))
         writeQualityScaledXStringSet(read.copy, fpath)
         
         system("echo start_minimap2 >> progress.txt")
@@ -107,6 +108,7 @@ minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NU
     }
     
     output$origins <- as(origins, "IntegerList")
+    system("echo finish >> progress.txt")
     return(output)
 }
 
