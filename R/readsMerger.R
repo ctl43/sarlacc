@@ -32,10 +32,15 @@ minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NU
     }
   
     iterations <- 0L
+    system(paste("echo iterations",iterations,">> progress.txt", sep=" "))
     while (iterations <= max.iter) {
         writeQualityScaledXStringSet(read.copy, fpath)
+        
+        system("echo start_minimap2 >> progress.txt")
         cleaned.paf <- .process_paf(paf.cmd, min.match = min.identity) # supply the minimap2 shell command directly to fread().
         cluster.list <- .cluster_paf(cleaned.paf, names(read.copy))
+        
+        system("echo start_UMI_grouping >> progress.txt")
         umi.subgroups <- bplapply(cluster.list, FUN = .umi_group, 
                                   UMI1 = UMI1.copy, UMI2 = UMI2.copy, umi.args = group.args, 
                                   BPPARAM = BPPARAM)
@@ -55,10 +60,17 @@ minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NU
         # Identifying the groups with changes and only performing MSA on those groups.
         changed <- lengths(subclustered)!=1
         changed.groups <- origins[changed]
-
+        
+        system("echo start_reads_MSA >> progress.txt")
         aligned.reads <- do.call(multiReadAlign, c(list(reads, groups = changed.groups, BPPARAM = BPPARAM), mra.read.args))
+        
+        system("echo start_reads_consensus >> progress.txt")
         read.copy <- do.call(consensusReadSeq, c(list(aligned.reads,BPPARAM = BPPARAM), cons.read.args))
+        
+        system("echo start_UMI_MSA >> progress.txt")
         aligned.UMI1 <- do.call(multiReadAlign, c(list(UMI1, groups = changed.groups, BPPARAM = BPPARAM), mra.umi1.args))
+        
+        system("echo start_UMI_consensus >> progress.txt")
         UMI1.copy <- do.call(consensusReadSeq, c(list(aligned.UMI1, BPPARAM = BPPARAM), cons.umi1.args))
         names(UMI1.copy) <- names(read.copy) <- names(changed.groups)
     
