@@ -33,7 +33,7 @@ minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NU
     
     iterations <- 0L
     progress <- paste0(" >> ",debug.name,"_progress.txt")
-    system("rm progress.txt")
+    system(paste0("rm ",debug.name,"_progress.txt"))
     while (iterations <= max.iter) {
         system(paste("echo iterations",iterations,progress, sep=" "))
         writeQualityScaledXStringSet(read.copy, fpath)
