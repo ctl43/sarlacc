@@ -6,7 +6,7 @@
 minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NULL, working.dir=NULL, min.identity=0.7, max.iter=3L,
                          mra.read.args=list(), mra.umi1.args=mra.read.args, mra.umi2.args=mra.read.args,
                          cons.read.args=list(), cons.umi1.args=cons.read.args, cons.umi2.args=cons.read.args,
-                         group.args=list(), BPPARAM=SerialParam())
+                         group.args=list(), BPPARAM=SerialParam(), debug.name=NULL)
 # Merges reads into final consensus sequences using pairwise alignments reported by minimap2.
 #
 # written by Cheuk-Ting Law
@@ -32,16 +32,17 @@ minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NU
     }
     
     iterations <- 0L
+    progress <- paste0(" >> ",debug.name,"_progress.txt")
     system("rm progress.txt")
     while (iterations <= max.iter) {
-        system(paste("echo iterations",iterations,">> progress.txt", sep=" "))
+        system(paste("echo iterations",iterations,progress, sep=" "))
         writeQualityScaledXStringSet(read.copy, fpath)
         
-        system("echo start_minimap2 >> progress.txt")
+        system(paste0("echo start_minimap2",progress))
         cleaned.paf <- .process_paf(paf.cmd, min.match = min.identity) # supply the minimap2 shell command directly to fread().
         cluster.list <- .cluster_paf(cleaned.paf, names(read.copy))
         
-        system("echo start_UMI_grouping >> progress.txt")
+        system(paste0("echo start_UMI_grouping",progress))
         umi.subgroups <- bplapply(cluster.list, FUN = .umi_group, 
                                   UMI1 = UMI1.copy, UMI2 = UMI2.copy, umi.args = group.args, 
                                   BPPARAM = BPPARAM)
@@ -62,16 +63,16 @@ minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NU
         changed <- lengths(subclustered)!=1
         changed.groups <- origins[changed]
         
-        system("echo start_reads_MSA >> progress.txt")
+        system(paste0("echo start_reads_MSA",progress))
         aligned.reads <- do.call(multiReadAlign, c(list(reads, groups = changed.groups, BPPARAM = BPPARAM), mra.read.args))
         
-        system("echo start_reads_consensus >> progress.txt")
+        system(paste0("echo start_reads_consensus",progress))
         read.copy <- do.call(consensusReadSeq, c(list(aligned.reads,BPPARAM = BPPARAM), cons.read.args))
         
-        system("echo start_UMI_MSA >> progress.txt")
+        system(paste0("echo start_UMI_MSA",progress))
         aligned.UMI1 <- do.call(multiReadAlign, c(list(UMI1, groups = changed.groups, BPPARAM = BPPARAM), mra.umi1.args))
         
-        system("echo start_UMI_consensus >> progress.txt")
+        system(paste0("echo start_UMI_consensus",progress))
         UMI1.copy <- do.call(consensusReadSeq, c(list(aligned.UMI1, BPPARAM = BPPARAM), cons.umi1.args))
         names(UMI1.copy) <- names(read.copy) <- names(changed.groups)
     
@@ -108,7 +109,7 @@ minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NU
     }
     
     output$origins <- as(origins, "IntegerList")
-    system("echo finish >> progress.txt")
+    system(paste0("echo finish",progress))
     return(output)
 }
 
