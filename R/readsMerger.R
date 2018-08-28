@@ -19,7 +19,7 @@ minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NU
         on.exit(unlink(working.dir, recursive = TRUE))
     }
     fpath <- file.path(working.dir, "reads.fastq")
-    all.args <- c(mm.args, "-x ava-ont", "-c", fpath, fpath)
+    all.args <- c(mm.args, "-x ava-ont", fpath, fpath)
     paf.cmd <- paste(c(mm.cmd, all.args, "|cut -f 1-12"), collapse = " ")
     origins <- as.list(seq_along(reads))
     read.copy <- reads
