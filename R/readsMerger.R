@@ -42,6 +42,10 @@ minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NU
         cleaned.paf <- .process_paf(paf.cmd, min.match = min.identity) # supply the minimap2 shell command directly to fread().
         cluster.list <- .cluster_paf(cleaned.paf, names(read.copy))
         
+        pdf(paste0("read_cluster_",debug.name, ".pdf"),width=5,height=5)
+        hist(log10(lengths(cluster.list)))
+        dev.off()
+        
         system(paste0("echo start_UMI_grouping",progress))
         umi.subgroups <- bplapply(cluster.list, FUN = .umi_group, 
                                   UMI1 = UMI1.copy, UMI2 = UMI2.copy, umi.args = group.args, 
