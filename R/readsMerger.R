@@ -117,7 +117,7 @@ minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NU
 .cluster_paf <- function(paf, all.names) {
     edges <- rbind(match(paf$qname, all.names), match(paf$tname, all.names))
     if (length(edges)==0L) {
-    return(as.list(seq_along(all.names)))
+        return(as.list(seq_along(all.names)))
     }
     G <- make_graph(edges)
     comp <- components(G)$membership
@@ -129,10 +129,12 @@ minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NU
 .process_paf <- function(paf, min.match=0.7) {
     paf <- fread(paf, select = c(1, 2, 6, 7, 10), sep="\t", header= FALSE,fill=TRUE)
     colnames(paf) <- c("qname", "qlength", "tname", "tlength", "matches")
-    mean.length <- (paf$qlength+paf$tlength)/2
-    prop.identical <- paf$matches/mean.length
-    paf$identity <- prop.identical
-    paf[prop.identical >= min.match,]
+    # mean.length <- (paf$qlength+paf$tlength)/2
+    # prop.identical <- paf$matches/mean.length
+    # paf$identity <- prop.identical
+    # paf[prop.identical >= min.match,]
+    len.diff <- abs(paf$qlength - paf$tlength)/pmin(paf$qlength, paf$tlength)
+    paf[len.diff < (1 - min.match), ]
 }
 
 .umi_group <- function(idx, UMI1, UMI2, umi.args) {
