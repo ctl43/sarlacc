@@ -42,10 +42,6 @@ minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NU
         cleaned.paf <- .process_paf(paf.cmd, min.match = min.identity) # supply the minimap2 shell command directly to fread().
         cluster.list <- .cluster_paf(cleaned.paf, names(read.copy))
         
-        pdf(paste0("read_cluster_",debug.name, ".pdf"),width=5,height=5)
-        hist(log10(lengths(cluster.list)))
-        dev.off()
-        
         system(paste0("echo start_UMI_grouping",progress))
         umi.subgroups <- bplapply(cluster.list, FUN = .umi_group, 
                                   UMI1 = UMI1.copy, UMI2 = UMI2.copy, umi.args = group.args, 
@@ -133,12 +129,10 @@ minimapMerge <- function(reads, UMI1, UMI2=NULL, mm.cmd="minimap2", mm.args = NU
 .process_paf <- function(paf, min.match=0.7) {
     paf <- fread(paf, select = c(1, 2, 6, 7, 10), sep="\t", header= FALSE,fill=TRUE)
     colnames(paf) <- c("qname", "qlength", "tname", "tlength", "matches")
-    # mean.length <- (paf$qlength+paf$tlength)/2
-    # prop.identical <- paf$matches/mean.length
-    # paf$identity <- prop.identical
-    # paf[prop.identical >= min.match,]
-    len.diff <- abs(paf$qlength - paf$tlength)/pmin(paf$qlength, paf$tlength)
-    paf[len.diff < (1 - min.match), ]
+    mean.length <- (paf$qlength+paf$tlength)/2
+    prop.identical <- paf$matches/mean.length
+    paf$identity <- prop.identical
+    paf[prop.identical >= min.match,]
 }
 
 .umi_group <- function(idx, UMI1, UMI2, umi.args) {
